@@ -1,9 +1,11 @@
 // nuxt.config.ts
+import { resolve } from 'node:path'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   modules: ['@nuxtjs/tailwindcss'],
-  css: ['~/assets/css/main.css'],
+  css: [resolve(__dirname, 'assets/css/main.css')],
   runtimeConfig: {
     databaseUrl: process.env.DATABASE_URL,
     betterAuthSecret: process.env.BETTER_AUTH_SECRET,
