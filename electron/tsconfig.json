@@ -6,7 +6,8 @@
     "target": "es2020",
     "outDir": "../dist-electron",
     "rootDir": ".",
-    "types": ["node"]
+    "types": ["node"],
+    "skipLibCheck": true
   },
   "include": ["./**/*.ts"]
 }

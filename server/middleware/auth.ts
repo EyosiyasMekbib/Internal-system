@@ -6,6 +6,7 @@ export default defineEventHandler(async (event) => {
   // Skip auth routes, static assets, and Nuxt internals
   if (
     path.startsWith('/api/auth/') ||
+    path.startsWith('/api/setup/') ||
     path.startsWith('/_nuxt/') ||
     path.startsWith('/__nuxt') ||
     path === '/favicon.ico'
@@ -22,8 +23,8 @@ export default defineEventHandler(async (event) => {
     return
   }
 
-  // Redirect unauthenticated page requests to /login
-  if (!session && path !== '/login') {
+  // Redirect unauthenticated page requests to /login (or /setup on first run)
+  if (!session && path !== '/login' && path !== '/setup') {
     return sendRedirect(event, '/login', 302)
   }
 

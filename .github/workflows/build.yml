@@ -1,0 +1,82 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Rebuild native modules for Electron
+        run: pnpm electron:rebuild
+
+      - name: Build Nuxt
+        run: pnpm build
+
+      - name: Compile Electron main
+        run: pnpm electron:compile
+
+      - name: Build macOS app
+        run: pnpm electron-builder build --mac --config electron-builder.config.ts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: katerina-mac
+          path: release/*.dmg
+
+  build-win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Rebuild native modules for Electron
+        run: pnpm electron:rebuild
+
+      - name: Build Nuxt
+        run: pnpm build
+
+      - name: Compile Electron main
+        run: pnpm electron:compile
+
+      - name: Build Windows app
+        run: pnpm electron-builder build --win --config electron-builder.config.ts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: katerina-win
+          path: release/*.exe

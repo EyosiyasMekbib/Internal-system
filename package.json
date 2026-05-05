@@ -1,5 +1,8 @@
 {
-  "name": "Internal-system",
+  "name": "katerina-erp",
+  "version": "1.0.0",
+  "description": "Katerina Internal ERP System",
+  "author": "Katerina Barcode Solutions",
   "type": "module",
   "private": true,
   "scripts": {
@@ -11,13 +14,14 @@
     "electron:compile": "tsc -p electron/tsconfig.json",
     "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron dist-electron/main.js\"",
     "electron:build": "npm run build && npm run electron:compile && electron-builder build --config electron-builder.config.ts",
+    "electron:build:mac": "npm run build && npm run electron:compile && electron-builder build --mac --config electron-builder.config.ts",
+    "electron:build:win": "npm run build && npm run electron:compile && electron-builder build --win --config electron-builder.config.ts",
     "electron:rebuild": "electron-rebuild -f -w better-sqlite3"
   },
   "dependencies": {
     "better-auth": "^1.6.9",
     "better-sqlite3": "^11.0.0",
     "drizzle-orm": "^0.45.2",
-    "electron": "^30.0.0",
     "ethiopian-date": "^0.0.6",
     "exceljs": "^4.4.0",
     "nuxt": "^4.4.4",
@@ -26,6 +30,7 @@
   },
   "devDependencies": {
     "@electron/rebuild": "^3.6.0",
+    "electron": "^30.0.0",
     "@nuxt/test-utils": "^4.0.3",
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@types/better-sqlite3": "^7.6.13",

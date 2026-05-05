@@ -3,6 +3,40 @@ definePageMeta({ layout: 'default' })
 
 const { data: s, refresh } = await useFetch('/api/settings')
 
+// Change password
+const pwForm = reactive({ current: '', next: '', confirm: '' })
+const pwError = ref('')
+const pwSuccess = ref(false)
+const pwSaving = ref(false)
+
+async function changePassword() {
+  pwError.value = ''
+  pwSuccess.value = false
+  if (pwForm.next !== pwForm.confirm) {
+    pwError.value = 'New passwords do not match'
+    return
+  }
+  if (pwForm.next.length < 8) {
+    pwError.value = 'New password must be at least 8 characters'
+    return
+  }
+  pwSaving.value = true
+  try {
+    await $fetch('/api/auth/change-password', {
+      method: 'POST',
+      body: { currentPassword: pwForm.current, newPassword: pwForm.next },
+    })
+    pwForm.current = ''
+    pwForm.next = ''
+    pwForm.confirm = ''
+    pwSuccess.value = true
+  } catch (e: any) {
+    pwError.value = e?.data?.message ?? 'Failed to change password'
+  } finally {
+    pwSaving.value = false
+  }
+}
+
 const form = reactive({
   vat_rate: '',
   mrc_code: '',
@@ -68,6 +102,58 @@ async function save() {
           class="bg-text text-bg px-6 py-2.5 text-sm font-medium hover:bg-red transition-colors disabled:opacity-50"
         >
           {{ saving ? 'Saving…' : 'Save Settings' }}
+        </button>
+      </form>
+    </div>
+
+    <!-- Change Password -->
+    <div class="px-8 pb-8 max-w-md">
+      <h2 class="font-display text-base font-bold text-text mb-4 mt-8 border-t border-border pt-8">Change Password</h2>
+      <form class="space-y-4" @submit.prevent="changePassword">
+        <div>
+          <label class="block text-xs font-medium text-muted uppercase tracking-wide mb-1.5">
+            Current Password
+          </label>
+          <input
+            v-model="pwForm.current"
+            type="password"
+            required
+            autocomplete="current-password"
+            class="w-full bg-surface border border-border px-3 py-2 text-sm outline-none focus:border-text"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-muted uppercase tracking-wide mb-1.5">
+            New Password
+          </label>
+          <input
+            v-model="pwForm.next"
+            type="password"
+            required
+            autocomplete="new-password"
+            class="w-full bg-surface border border-border px-3 py-2 text-sm outline-none focus:border-text"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-muted uppercase tracking-wide mb-1.5">
+            Confirm New Password
+          </label>
+          <input
+            v-model="pwForm.confirm"
+            type="password"
+            required
+            autocomplete="new-password"
+            class="w-full bg-surface border border-border px-3 py-2 text-sm outline-none focus:border-text"
+          />
+        </div>
+        <p v-if="pwError" class="text-xs text-red">{{ pwError }}</p>
+        <p v-if="pwSuccess" class="text-xs text-text">Password changed successfully.</p>
+        <button
+          type="submit"
+          :disabled="pwSaving"
+          class="bg-text text-bg px-6 py-2.5 text-sm font-medium hover:bg-red transition-colors disabled:opacity-50"
+        >
+          {{ pwSaving ? 'Saving…' : 'Change Password' }}
         </button>
       </form>
     </div>
