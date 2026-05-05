@@ -4,8 +4,12 @@ import { sql, lt } from 'drizzle-orm'
 
 export default defineEventHandler(async () => {
   const now = new Date()
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const y = now.getFullYear()
+  const m = now.getMonth()
+  const monthStart = `${y}-${pad(m + 1)}-01`
+  const lastDay = new Date(y, m + 1, 0).getDate()
+  const monthEnd = `${y}-${pad(m + 1)}-${pad(lastDay)}`
 
   const [salesResult] = await db
     .select({

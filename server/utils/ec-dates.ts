@@ -43,17 +43,19 @@ export function formatEcDate(date: Date): string {
   return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`
 }
 
-export function ecMonthDateRange(year: number, month: number): { start: Date; end: Date } {
+export function ecMonthDateRange(year: number, month: number): { start: Date; end: Date; startStr: string; endStr: string } {
+  const pad = (n: number) => String(n).padStart(2, '0')
+
   // Convert EC first day of month to Gregorian
-  const startDateStr = EthiopianDate.toEuropean(year, month, 1).join('-')
-  const start = new Date(startDateStr)
+  const [sy, sm, sd] = EthiopianDate.toGregorian(year, month, 1)
+  const startStr = `${sy}-${pad(sm)}-${pad(sd)}`
+  const start = new Date(sy, sm - 1, sd)
   
   // Convert EC last day of month to Gregorian
   const lastDay = month === 13 ? 5 : 30
-  const endDateStr = EthiopianDate.toEuropean(year, month, lastDay).join('-')
-  const end = new Date(endDateStr)
-  // Ensure we cover the entire last day
-  end.setHours(23, 59, 59, 999)
+  const [ey, em, ed] = EthiopianDate.toGregorian(year, month, lastDay)
+  const endStr = `${ey}-${pad(em)}-${pad(ed)}`
+  const end = new Date(ey, em - 1, ed, 23, 59, 59, 999)
   
-  return { start, end }
+  return { start, end, startStr, endStr }
 }
