@@ -104,7 +104,7 @@ export default defineEventHandler(async (event) => {
 
   type BorderSides = { left?: ExcelJS.Border; right?: ExcelJS.Border; top?: ExcelJS.Border; bottom?: ExcelJS.Border }
 
-  function setHeader(ref: string, val: string, mergeTo?: string, extraStyle?: { border?: BorderSides; numFmt?: string }) {
+  function setColHeader(ref: string, val: string, mergeTo?: string, extraStyle?: { border?: BorderSides; numFmt?: string }) {
     if (mergeTo) ws.mergeCells(`${ref}:${mergeTo}`)
     const cell = ws.getCell(ref)
     cell.value = val
@@ -115,25 +115,25 @@ export default defineEventHandler(async (event) => {
   }
 
   // A6:A7 merged
-  setHeader('A6', 'ተ.ቁ', 'A7')
+  setColHeader('A6', 'ተ.ቁ', 'A7')
   // B6:B7
-  setHeader('B6', 'የተሸጠው የዕቃ መጠሪያ (A) ', 'B7')
+  setColHeader('B6', 'የተሸጠው የዕቃ መጠሪያ (A) ', 'B7')
   // C6:C7
-  setHeader('C6', 'የስሪት ሀገር          (B)', 'C7')
+  setColHeader('C6', 'የስሪት ሀገር          (B)', 'C7')
   // D6:D7
-  setHeader('D6', 'Brand Name              (C )', 'D7')
+  setColHeader('D6', 'Brand Name              (C )', 'D7')
   // E6:E7
-  setHeader('E6', 'መለኪያ ', 'E7', { border: thinBorder(['left', 'right', 'top', 'bottom']) as any })
+  setColHeader('E6', 'መለኪያ ', 'E7', { border: thinBorder(['left', 'right', 'top', 'bottom']) as any })
   // F6:F7
-  setHeader('F6', 'ብዛት          (D)', 'F7', { numFmt: ACCOUNTING })
+  setColHeader('F6', 'ብዛት          (D)', 'F7', { numFmt: ACCOUNTING })
   // G6:G7
-  setHeader('G6', 'የአንዱ አማካይ ግዢ ዋጋ                       ( Unit Average Cost) (E) ', 'G7', { numFmt: ACCOUNTING })
+  setColHeader('G6', 'የአንዱ አማካይ ግዢ ዋጋ                       ( Unit Average Cost) (E) ', 'G7', { numFmt: ACCOUNTING })
   // H6:H7
-  setHeader('H6', 'የአንዱ ሽያጭ ዋጋ     ከ ተ.እ.ታ በፊት             ( F ) ', 'H7', { numFmt: ACCOUNTING })
+  setColHeader('H6', 'የአንዱ ሽያጭ ዋጋ     ከ ተ.እ.ታ በፊት             ( F ) ', 'H7', { numFmt: ACCOUNTING })
   // I6:I7
-  setHeader('I6', 'የተ.እ.ታ /ቲ.ኦ.ቲ  /     (G )', 'I7')
+  setColHeader('I6', 'የተ.እ.ታ /ቲ.ኦ.ቲ  /     (G )', 'I7')
   // J6:J7
-  setHeader('J6', 'ጠቅላላ ዋጋ                        ታክስ ጨምሮ                     H (F+G)', 'J7')
+  setColHeader('J6', 'ጠቅላላ ዋጋ                        ታክስ ጨምሮ                     H (F+G)', 'J7')
   // K6 only (row 6), not merged with row 7 → K7 has separate label
   const k6 = ws.getCell('K6')
   k6.value = 'ጠቅላላ ዋጋ ተ.እ.ታ ጨምሮ '
@@ -170,7 +170,7 @@ export default defineEventHandler(async (event) => {
   m7.border = thinBorder(['left', 'right', 'top', 'bottom']) as any
 
   // N6:N7 merged MRC
-  setHeader('N6', 'የሽያጭ መመዝገቢያ መለኪያ ኮድ /MRC/                               (K)', 'N7')
+  setColHeader('N6', 'የሽያጭ መመዝገቢያ መለኪያ ኮድ /MRC/                               (K)', 'N7')
 
   // ── Column widths (from reference) ──
   ws.getColumn(1).width  = 7
