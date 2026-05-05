@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Katerina Internal ERP System",
   "author": "Katerina Barcode Solutions",
+  "main": "dist-electron/main.js",
   "type": "module",
   "private": true,
   "scripts": {
