@@ -1,0 +1,1 @@
+ALTER TABLE "payroll_runs" ADD CONSTRAINT "payroll_runs_month_year_unique" UNIQUE("month","year");

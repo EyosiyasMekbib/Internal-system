@@ -1,6 +1,6 @@
 // server/db/schema.ts
 import {
-  pgTable, uuid, text, numeric, timestamp, date, index, boolean
+  pgTable, uuid, text, numeric, timestamp, date, index, boolean, unique
 } from 'drizzle-orm/pg-core'
 
 // ── better-auth tables ─────────────────────────────────────────────────────
@@ -129,6 +129,43 @@ export const salesOrderLines = pgTable('sales_order_lines', {
   unitPrice: numeric('unit_price', { precision: 12, scale: 4 }).notNull(),
   vatAmount: numeric('vat_amount', { precision: 12, scale: 4 }).notNull(),
   total: numeric('total', { precision: 14, scale: 2 }).notNull(),
+})
+
+export const employees = pgTable('employees', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tin: text('tin').notNull(),
+  fullName: text('full_name').notNull(),
+  pensionId: text('pension_id'),
+  startDate: date('start_date').notNull(),
+  endDate: date('end_date'),
+  basicSalary: numeric('basic_salary', { precision: 12, scale: 2 }).notNull(),
+  transportAllowance: numeric('transport_allowance', { precision: 12, scale: 2 }).notNull().default('0'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+export const payrollRuns = pgTable('payroll_runs', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  month: numeric('month', { precision: 2, scale: 0 }).notNull(), // 1-12
+  year: numeric('year', { precision: 4, scale: 0 }).notNull(),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (t) => [unique('payroll_runs_month_year_unique').on(t.month, t.year)])
+
+export const payslips = pgTable('payslips', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  payrollRunId: uuid('payroll_run_id').notNull().references(() => payrollRuns.id, { onDelete: 'cascade' }),
+  employeeId: uuid('employee_id').notNull().references(() => employees.id),
+  basicSalary: numeric('basic_salary', { precision: 12, scale: 2 }).notNull(),
+  transportAllowance: numeric('transport_allowance', { precision: 12, scale: 2 }).notNull().default('0'),
+  taxableTransportAllowance: numeric('taxable_transport_allowance', { precision: 12, scale: 2 }).notNull().default('0'),
+  overTime: numeric('over_time', { precision: 12, scale: 2 }).notNull().default('0'),
+  otherTaxableBenefit: numeric('other_taxable_benefit', { precision: 12, scale: 2 }).notNull().default('0'),
+  totalTaxable: numeric('total_taxable', { precision: 12, scale: 2 }).notNull(),
+  taxWithheld: numeric('tax_withheld', { precision: 12, scale: 2 }).notNull(),
+  costSharing: numeric('cost_sharing', { precision: 12, scale: 2 }).notNull(),
+  employerPension: numeric('employer_pension', { precision: 12, scale: 2 }).notNull(),
+  netPay: numeric('net_pay', { precision: 12, scale: 2 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
 export const settings = pgTable('settings', {
