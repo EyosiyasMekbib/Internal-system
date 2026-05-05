@@ -1,8 +1,9 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'default' })
 
-const ecYear = ref(2018)
-const ecMonth = ref(6)
+const _nowEc = toEthiopian(new Date())
+const ecYear = ref(_nowEc.year)
+const ecMonth = ref(_nowEc.month)
 
 const { data: report, refresh } = await useFetch('/api/reports/vat-register', {
   query: computed(() => ({ ec_year: ecYear.value, ec_month: ecMonth.value }))
