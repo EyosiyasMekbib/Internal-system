@@ -2,7 +2,7 @@ import ExcelJS from 'exceljs'
 import { db } from '~~/server/db/index'
 import { salesOrders, salesOrderLines, customers, items, settings } from '~~/server/db/schema'
 import { eq, between } from 'drizzle-orm'
-import { ecMonthDateRange, formatEcDate, formatEcMonth, toEthiopian } from '~~/server/utils/ec-dates'
+import { ecMonthDateRange, formatEcDate, formatEcMonth } from '~~/server/utils/ec-dates'
 
 const ACCOUNTING = '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)'
 
@@ -99,10 +99,8 @@ export default defineEventHandler(async (event) => {
   ws.getRow(6).height = 30
   ws.getRow(7).height = 66.75
 
-  const hBorderTop  = { top: { style: 'thin' as const, color: { indexed: 64 } } }
-  const hBorderFull = thinBorder(['left', 'right', 'top', 'bottom'])
-
-  type BorderSides = { left?: ExcelJS.Border; right?: ExcelJS.Border; top?: ExcelJS.Border; bottom?: ExcelJS.Border }
+  type BorderStyle = { style: 'thin' | 'medium'; color?: { indexed?: number; argb?: string } }
+  type BorderSides = { left?: BorderStyle; right?: BorderStyle; top?: BorderStyle; bottom?: BorderStyle }
 
   function setColHeader(ref: string, val: string, mergeTo?: string, extraStyle?: { border?: BorderSides; numFmt?: string }) {
     if (mergeTo) ws.mergeCells(`${ref}:${mergeTo}`)
