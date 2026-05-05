@@ -144,10 +144,12 @@ async function save() {
               <div>
                 <label class="block text-xs font-medium text-muted uppercase tracking-wide mb-1.5">TIN <span class="text-muted/50">(Optional)</span></label>
                 <input v-model="form.supplierTin" class="w-full bg-surface border border-border px-3 py-2 text-sm outline-none focus:border-text" />
+                <p class="mt-1 text-xs text-muted">Tax Identification Number (from ERCA)</p>
               </div>
               <div>
                 <label class="block text-xs font-medium text-muted uppercase tracking-wide mb-1.5">VAT Reg No <span class="text-muted/50">(Optional)</span></label>
                 <input v-model="form.supplierVatRegNo" class="w-full bg-surface border border-border px-3 py-2 text-sm outline-none focus:border-text" />
+                <p class="mt-1 text-xs text-muted">Supplier's VAT registration number</p>
               </div>
               <div>
                 <label class="block text-xs font-medium text-muted uppercase tracking-wide mb-1.5">Date</label>
@@ -158,10 +160,12 @@ async function save() {
               <div>
                 <label class="block text-xs font-medium text-muted uppercase tracking-wide mb-1.5">Voucher No</label>
                 <input v-model="form.voucherNo" class="w-full bg-surface border border-border px-3 py-2 text-sm outline-none focus:border-text" />
+                <p class="mt-1 text-xs text-muted">Supplier invoice or voucher reference</p>
               </div>
               <div>
                 <label class="block text-xs font-medium text-muted uppercase tracking-wide mb-1.5">VAT Amount (ETB)</label>
                 <input v-model="form.vatAmount" type="number" step="0.01" min="0" class="w-full bg-surface border border-border px-3 py-2 text-sm font-mono outline-none focus:border-text" />
+                <p class="mt-1 text-xs text-muted">Total VAT as shown on supplier invoice</p>
               </div>
             </div>
           </div>
@@ -175,18 +179,38 @@ async function save() {
 
             <div v-for="(line, i) in form.lines" :key="i" class="border border-border mb-2 p-3 space-y-2">
               <div class="flex gap-2">
-                <input list="item-options" v-model="line.itemName" @input="onItemInput(line)" placeholder="Item name" required class="flex-1 bg-surface border border-border px-2 py-1.5 text-sm outline-none focus:border-text" autocomplete="off" />
+                <div class="flex-1">
+                  <p class="text-xs text-muted mb-1">Item Name</p>
+                  <input list="item-options" v-model="line.itemName" @input="onItemInput(line)" placeholder="Search or type new item…" required class="w-full bg-surface border border-border px-2 py-1.5 text-sm outline-none focus:border-text" autocomplete="off" />
+                </div>
                 <datalist id="item-options">
                   <option v-for="item in (items as any[])" :key="item.id" :value="item.name"></option>
                 </datalist>
-                <input v-model="line.itemUnit" placeholder="Unit (e.g. pcs, kg)" required class="w-32 bg-surface border border-border px-2 py-1.5 text-xs outline-none focus:border-text" />
-                <button type="button" class="text-muted hover:text-red px-2" @click="removeLine(i)">✕</button>
+                <div class="w-32">
+                  <p class="text-xs text-muted mb-1">Unit</p>
+                  <input v-model="line.itemUnit" placeholder="pcs / kg / box" required class="w-full bg-surface border border-border px-2 py-1.5 text-xs outline-none focus:border-text" />
+                </div>
+                <div class="flex items-end pb-0.5">
+                  <button type="button" class="text-muted hover:text-red px-2 py-1.5" @click="removeLine(i)">✕</button>
+                </div>
               </div>
               <div class="grid grid-cols-4 gap-2">
-                <input v-model="line.countryOfOrigin" placeholder="Origin" class="bg-surface border border-border px-2 py-1.5 text-xs outline-none focus:border-text" />
-                <input v-model="line.brandName" placeholder="Brand" class="bg-surface border border-border px-2 py-1.5 text-xs outline-none focus:border-text" />
-                <input v-model.number="line.qty" type="number" step="0.001" min="0.001" placeholder="Qty" class="bg-surface border border-border px-2 py-1.5 text-xs font-mono outline-none focus:border-text" />
-                <input v-model.number="line.unitPrice" type="number" step="0.01" min="0" placeholder="Unit Price" class="bg-surface border border-border px-2 py-1.5 text-xs font-mono outline-none focus:border-text" />
+                <div>
+                  <p class="text-xs text-muted mb-1">Country of Origin</p>
+                  <input v-model="line.countryOfOrigin" placeholder="e.g. Ethiopia" class="w-full bg-surface border border-border px-2 py-1.5 text-xs outline-none focus:border-text" />
+                </div>
+                <div>
+                  <p class="text-xs text-muted mb-1">Brand</p>
+                  <input v-model="line.brandName" placeholder="e.g. Acme" class="w-full bg-surface border border-border px-2 py-1.5 text-xs outline-none focus:border-text" />
+                </div>
+                <div>
+                  <p class="text-xs text-muted mb-1">Quantity</p>
+                  <input v-model.number="line.qty" type="number" step="0.001" min="0.001" placeholder="0" class="w-full bg-surface border border-border px-2 py-1.5 text-xs font-mono outline-none focus:border-text" />
+                </div>
+                <div>
+                  <p class="text-xs text-muted mb-1">Unit Price (ETB)</p>
+                  <input v-model.number="line.unitPrice" type="number" step="0.01" min="0" placeholder="0.00" class="w-full bg-surface border border-border px-2 py-1.5 text-xs font-mono outline-none focus:border-text" />
+                </div>
               </div>
               <div class="text-right text-xs text-muted font-mono">
                 Line total: {{ (line.qty * line.unitPrice).toLocaleString('en-ET', { minimumFractionDigits: 2 }) }}

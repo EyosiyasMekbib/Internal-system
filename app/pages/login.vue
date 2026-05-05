@@ -29,7 +29,7 @@ async function login() {
       <!-- Logo -->
       <div class="mb-8 text-center">
         <img
-          src="~/assets/images/katerina-logo.png"
+          src="~/assets/images/logo.png"
           alt="Katerina Barcode Solutions"
           class="h-10 w-auto mx-auto"
         />
