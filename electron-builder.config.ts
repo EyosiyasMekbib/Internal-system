@@ -1,0 +1,43 @@
+// electron-builder.config.ts
+import type { Configuration } from 'electron-builder'
+
+const config: Configuration = {
+  appId: 'com.katerina.erp',
+  productName: 'Katerina ERP',
+  directories: {
+    output: 'release',
+    buildResources: 'build',
+  },
+  files: [
+    'dist-electron/**/*',
+    '.output/**/*',
+    'node_modules/better-sqlite3/**/*',
+    '!node_modules/better-sqlite3/src/**',
+    '!node_modules/better-sqlite3/deps/**',
+    '!**/*.map',
+  ],
+  extraResources: [
+    { from: '.output', to: 'app/.output' },
+    { from: 'server/db/migrations', to: 'app/migrations' },
+  ],
+  mac: {
+    target: [{ target: 'dmg', arch: ['arm64', 'x64'] }],
+    category: 'public.app-category.business',
+    icon: 'build/icon.icns',
+  },
+  win: {
+    target: [{ target: 'nsis', arch: ['x64'] }],
+    icon: 'build/icon.ico',
+  },
+  linux: {
+    target: ['AppImage'],
+    icon: 'build/icon.png',
+    category: 'Office',
+  },
+  nsis: {
+    oneClick: false,
+    allowToChangeInstallationDirectory: true,
+  },
+}
+
+export default config

@@ -5,7 +5,7 @@ import { authUser, authSession, authAccount, authVerification } from './db/schem
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: 'pg',
+    provider: 'sqlite',
     schema: {
       user: authUser,
       session: authSession,
@@ -14,6 +14,6 @@ export const auth = betterAuth({
     },
   }),
   emailAndPassword: { enabled: true },
-  secret: process.env.BETTER_AUTH_SECRET!,
-  baseURL: process.env.BETTER_AUTH_URL!,
+  secret: process.env.BETTER_AUTH_SECRET ?? 'katerina-desktop-secret',
+  baseURL: process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',
 })
