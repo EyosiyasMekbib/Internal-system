@@ -18,14 +18,21 @@ const showForm = ref(false)
 
 type Line = { itemId: string; itemName: string; itemUnit: string; countryOfOrigin: string; brandName: string; qty: number; unitPrice: number }
 
+const _todayEc = toEthiopian(new Date())
+const ecDate = reactive({ year: _todayEc.year, month: _todayEc.month, day: _todayEc.day })
+
 const form = reactive({
   customerId: '',
   customerName: '',
   customerTin: '',
   customerVatRegNo: '',
-  date: new Date().toISOString().split('T')[0],
+  date: ecToGregorianIso(_todayEc.year, _todayEc.month, _todayEc.day),
   fsNo: '',
   lines: [] as Line[],
+})
+
+watch(ecDate, (v) => {
+  try { form.date = ecToGregorianIso(v.year, v.month, v.day) } catch {}
 })
 
 function onCustomerInput() {
@@ -62,9 +69,11 @@ function lineVat(line: Line) {
 }
 
 function openNew() {
+  const t = toEthiopian(new Date())
+  Object.assign(ecDate, { year: t.year, month: t.month, day: t.day })
   Object.assign(form, {
-    customerId: '', customerName: '', customerTin: '', customerVatRegNo: '', 
-    date: new Date().toISOString().split('T')[0],
+    customerId: '', customerName: '', customerTin: '', customerVatRegNo: '',
+    date: ecToGregorianIso(t.year, t.month, t.day),
     fsNo: '', lines: [],
   })
   addLine()
@@ -159,8 +168,15 @@ async function save() {
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-medium text-muted uppercase tracking-wide mb-1.5">Date</label>
-                <input v-model="form.date" type="date" required class="w-full bg-surface border border-border px-3 py-2 text-sm outline-none focus:border-text" />
+                <label class="block text-xs font-medium text-muted uppercase tracking-wide mb-1.5">Date <span class="text-muted/60 normal-case font-normal">(Ethiopian Calendar)</span></label>
+                <div class="flex gap-1">
+                  <input v-model.number="ecDate.day" type="number" min="1" max="30" placeholder="Day" class="w-16 bg-surface border border-border px-2 py-2 text-sm outline-none focus:border-text" />
+                  <select v-model.number="ecDate.month" class="flex-1 bg-surface border border-border px-2 py-2 text-sm outline-none focus:border-text">
+                    <option v-for="m in EC_MONTHS" :key="m.value" :value="m.value">{{ m.label }}</option>
+                  </select>
+                  <input v-model.number="ecDate.year" type="number" min="2000" max="2100" placeholder="Year" class="w-20 bg-surface border border-border px-2 py-2 text-sm outline-none focus:border-text" />
+                </div>
+                <p class="mt-1 text-xs text-muted">Gregorian: {{ form.date }}</p>
               </div>
               <div>
                 <label class="block text-xs font-medium text-muted uppercase tracking-wide mb-1.5">FS No</label>
