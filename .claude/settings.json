@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm --filter * test *)",
+      "Bash(pnpm test *)",
+      "Bash(docker compose ps *)",
+      "Bash(docker compose logs *)",
+      "Bash(npx vitest run *)",
+      "Bash(git -C * log *)",
+      "Bash(git -C * status *)"
+    ]
+  }
+}
