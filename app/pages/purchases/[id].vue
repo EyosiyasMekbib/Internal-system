@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import PurchaseVoucher from '~/components/print/PurchaseVoucher.vue'
+
 definePageMeta({ layout: 'default' })
 
 const route = useRoute()
@@ -63,5 +65,6 @@ const { data: order } = await useFetch(`/api/purchases/${route.params.id}`)
         </div>
       </div>
     </div>
+    <PurchaseVoucher v-if="order" :order="(order as any)" />
   </div>
 </template>
