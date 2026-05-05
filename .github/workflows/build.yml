@@ -34,9 +34,7 @@ jobs:
         run: pnpm electron:compile
 
       - name: Build macOS app
-        run: pnpm electron-builder build --mac --config electron-builder.config.ts
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm electron-builder build --mac --publish never
 
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v4
@@ -71,9 +69,7 @@ jobs:
         run: pnpm electron:compile
 
       - name: Build Windows app
-        run: pnpm electron-builder build --win --config electron-builder.config.ts
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm electron-builder build --win --publish never
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
