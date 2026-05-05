@@ -1,6 +1,6 @@
 import ExcelJS from 'exceljs'
 import { db } from '~~/server/db/index'
-import { salesOrders, salesOrderLines, customers, items } from '~~/server/db/schema'
+import { salesOrders, salesOrderLines, customers, items, settings } from '~~/server/db/schema'
 import { eq, between } from 'drizzle-orm'
 import { ecMonthDateRange, formatEcDate, formatEcMonth } from '~~/server/utils/ec-dates'
 
@@ -34,11 +34,13 @@ export default defineEventHandler(async (event) => {
   const startStr = start.toISOString().split('T')[0]
   const endStr = end.toISOString().split('T')[0]
 
+  const mrcSetting = await db.query.settings.findFirst({ where: eq(settings.key, 'mrc_code') })
+  const mrcCode = mrcSetting?.value ?? ''
+
   const rows = await db
     .select({
       saleDate: salesOrders.date,
       fsNo: salesOrders.fsNo,
-      mrcCode: salesOrders.mrcCode,
       itemName: items.name,
       itemUnit: items.unit,
       countryOfOrigin: salesOrderLines.countryOfOrigin,
@@ -47,7 +49,7 @@ export default defineEventHandler(async (event) => {
       unitPrice: salesOrderLines.unitPrice,
       vatAmount: salesOrderLines.vatAmount,
       total: salesOrderLines.total,
-      costPrice: items.costPrice,
+      costPrice: salesOrderLines.costPrice,
     })
     .from(salesOrders)
     .leftJoin(customers, eq(salesOrders.customerId, customers.id))
@@ -98,10 +100,10 @@ export default defineEventHandler(async (event) => {
       unitPrice,
       vatAmount,
       total,
-      qty * total,
+      qty * unitPrice + vatAmount,
       r.fsNo,
       formatEcDate(new Date(r.saleDate!)),
-      r.mrcCode ?? '',
+      mrcCode,
     ])
   })
 
