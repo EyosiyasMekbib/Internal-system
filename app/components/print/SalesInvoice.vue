@@ -3,7 +3,6 @@ const props = defineProps<{
   order: {
     date: string
     fsNo: string
-    mrcCode?: string
     subtotal: string
     vatAmount: string
     grandTotal: string
@@ -17,13 +16,20 @@ const props = defineProps<{
       itemUnit: string
       qty: string
       unitPrice: string
+      vatAmount: string
       total: string
     }[]
   }
 }>()
 
+const { data: appSettings } = await useFetch('/api/settings')
+const mrcCode = computed(() => (appSettings.value as any)?.mrc_code ?? '')
+const vatRate = computed(() => {
+  const r = Number((appSettings.value as any)?.vat_rate ?? 0.15)
+  return `${(r * 100).toFixed(0)}%`
+})
+
 function amountInWords(amount: number): string {
-  // Simple ETB amount-in-words for whole numbers
   const n = Math.floor(amount)
   const cents = Math.round((amount - n) * 100)
   return `${n.toLocaleString()} ETB` + (cents > 0 ? ` and ${cents}/100` : ' only')
@@ -35,7 +41,7 @@ function amountInWords(amount: number): string {
     <!-- Header -->
     <div class="flex justify-between items-start mb-4">
       <div>
-        <img src="/images/katerina-logo.png" alt="Katerina" class="h-14 mb-1" />
+        <img src="/logo.png" alt="Katerina" class="h-14 mb-1" />
       </div>
       <div class="text-right text-[10px] leading-5">
         <div class="text-[14px] font-bold">ካተሪና ፍራልዲ</div>
@@ -108,7 +114,6 @@ function amountInWords(amount: number): string {
           <td class="border border-[#000] px-1 py-1 text-right font-mono">{{ Number(line.unitPrice).toLocaleString('en-ET', { minimumFractionDigits: 2 }) }}</td>
           <td class="border border-[#000] px-1 py-1 text-right font-mono">{{ Number(line.total).toLocaleString('en-ET', { minimumFractionDigits: 2 }) }}</td>
         </tr>
-        <!-- Empty rows to fill space -->
         <tr v-for="n in Math.max(0, 8 - order.lines.length)" :key="`empty-${n}`">
           <td class="border border-[#000] px-1 py-3" colspan="6" />
         </tr>
@@ -119,7 +124,7 @@ function amountInWords(amount: number): string {
           <td class="border border-[#000] px-2 py-1 text-right font-mono">{{ Number(order.subtotal).toLocaleString('en-ET', { minimumFractionDigits: 2 }) }}</td>
         </tr>
         <tr>
-          <td colspan="5" class="border border-[#000] px-2 py-1 text-right font-bold">ተ.እ.ታ (15%) / VAT (15%)</td>
+          <td colspan="5" class="border border-[#000] px-2 py-1 text-right font-bold">ተ.እ.ታ ({{ vatRate }}) / VAT ({{ vatRate }})</td>
           <td class="border border-[#000] px-2 py-1 text-right font-mono">{{ Number(order.vatAmount).toLocaleString('en-ET', { minimumFractionDigits: 2 }) }}</td>
         </tr>
         <tr>
@@ -163,13 +168,13 @@ function amountInWords(amount: number): string {
       <span class="font-bold">የገንዘቡ ተቀባይ ስም እና ፊርማ / Cashier's Name &amp; Signature:</span>
     </div>
 
-    <!-- Footer note -->
+    <!-- Footer -->
     <div class="mt-2 text-[8px] text-center border-t border-[#000] pt-1 flex justify-between">
       <span>ካሽ ፊስካል ወይም ተመላሽ ደረሰኝ ካልተሰጠ ዋጋ የለውም</span>
       <span>INVALID WITHOUT FISCAL OR REFUND RECEIPT ATTACHED</span>
     </div>
     <div class="text-[8px] text-right">
-      MACHINE REGISTRATION CODE: <span class="font-mono">{{ order.mrcCode || '' }}</span>
+      MACHINE REGISTRATION CODE: <span class="font-mono">{{ mrcCode }}</span>
     </div>
   </div>
 </template>
