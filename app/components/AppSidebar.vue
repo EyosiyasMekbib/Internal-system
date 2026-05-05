@@ -9,6 +9,7 @@ const links = [
   { href: '/purchases', label: 'Purchases',  icon: '↓' },
   { href: '/sales',     label: 'Sales',      icon: '↑' },
   { href: '/reports/vat',   label: 'VAT Report', icon: '≡' },
+  { href: '/payroll',   label: 'Payroll',    icon: '☷' },
   { href: '/settings',  label: 'Settings',   icon: '⚙' },
 ]
 

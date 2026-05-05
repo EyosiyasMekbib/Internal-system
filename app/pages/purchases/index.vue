@@ -14,7 +14,7 @@ const columns = [
   { key: 'grandTotal',   label: 'Total (ETB)', numeric: true, width: '140px' },
 ]
 
-type Line = { itemId: string; itemName: string; itemUnit: string; countryOfOrigin: string; brandName: string; qty: number; unitPrice: number }
+type Line = { itemId: string; itemName: string; itemUnit: string; countryOfOrigin: string; brandName: string; qty: number; unitPrice: number; costPrice: number }
 
 // ── New Purchase ───────────────────────────────────────────────────────────────
 const showForm = ref(false)
@@ -60,7 +60,7 @@ function onItemInput(line: Line) {
 }
 
 function addLine() {
-  form.lines.push({ itemId: '', itemName: '', itemUnit: '', countryOfOrigin: '', brandName: '', qty: 1, unitPrice: 0 })
+  form.lines.push({ itemId: '', itemName: '', itemUnit: '', countryOfOrigin: '', brandName: '', qty: 1, unitPrice: 0, costPrice: 0 })
 }
 
 function removeLine(i: number) {
@@ -85,6 +85,11 @@ const subtotal = computed(() => form.lines.reduce((s, l) => s + l.qty * l.unitPr
 const grandTotal = computed(() => subtotal.value + Number(form.vatAmount || 0))
 
 async function save() {
+  if (form.lines.length === 0) { alert('Add at least one line item.'); return }
+  if (form.lines.some(l => !l.itemName.trim())) { alert('All line items must have a name.'); return }
+  if (form.lines.some(l => !l.itemUnit.trim())) { alert('All line items must have a unit.'); return }
+  if (form.lines.some(l => l.qty <= 0)) { alert('Quantity must be greater than 0.'); return }
+  if (form.lines.some(l => l.unitPrice < 0)) { alert('Unit price cannot be negative.'); return }
   saving.value = true
   try {
     let sId = form.supplierId
@@ -100,7 +105,7 @@ async function save() {
       if (!line.itemId && line.itemName.trim()) {
         const item = await $fetch('/api/items', {
           method: 'POST',
-          body: { name: line.itemName, unit: line.itemUnit }
+          body: { name: line.itemName, unit: line.itemUnit, costPrice: line.costPrice }
         })
         line.itemId = (item as any).id
       }
@@ -171,6 +176,7 @@ function startEdit() {
       brandName: l.brandName ?? '',
       qty: Number(l.qty),
       unitPrice: Number(l.unitPrice),
+      costPrice: 0,
     })),
   })
   showDetailEdit.value = true
@@ -198,7 +204,7 @@ function onDetailItemInput(line: Line) {
 }
 
 function addDetailLine() {
-  detailForm.lines.push({ itemId: '', itemName: '', itemUnit: '', countryOfOrigin: '', brandName: '', qty: 1, unitPrice: 0 })
+  detailForm.lines.push({ itemId: '', itemName: '', itemUnit: '', countryOfOrigin: '', brandName: '', qty: 1, unitPrice: 0, costPrice: 0 })
 }
 
 function removeDetailLine(i: number) {
@@ -209,6 +215,11 @@ const detailSubtotal = computed(() => detailForm.lines.reduce((s, l) => s + l.qt
 const detailGrandTotal = computed(() => detailSubtotal.value + Number(detailForm.vatAmount || 0))
 
 async function saveDetail() {
+  if (detailForm.lines.length === 0) { alert('Add at least one line item.'); return }
+  if (detailForm.lines.some(l => !l.itemName.trim())) { alert('All line items must have a name.'); return }
+  if (detailForm.lines.some(l => !l.itemUnit.trim())) { alert('All line items must have a unit.'); return }
+  if (detailForm.lines.some(l => l.qty <= 0)) { alert('Quantity must be greater than 0.'); return }
+  if (detailForm.lines.some(l => l.unitPrice < 0)) { alert('Unit price cannot be negative.'); return }
   detailSaving.value = true
   try {
     let sId = detailForm.supplierId
@@ -224,7 +235,7 @@ async function saveDetail() {
       if (!line.itemId && line.itemName.trim()) {
         const item = await $fetch('/api/items', {
           method: 'POST',
-          body: { name: line.itemName, unit: line.itemUnit }
+          body: { name: line.itemName, unit: line.itemUnit, costPrice: line.costPrice }
         })
         line.itemId = (item as any).id
       }
@@ -354,6 +365,12 @@ async function saveDetail() {
                 <div>
                   <p class="text-xs text-muted mb-1">Unit Price (ETB)</p>
                   <input v-model.number="line.unitPrice" type="number" step="0.01" min="0" placeholder="0.00" class="w-full bg-surface border border-border px-2 py-1.5 text-xs font-mono outline-none focus:border-text" />
+                </div>
+              </div>
+              <div v-if="!line.itemId && line.itemName.trim()" class="grid grid-cols-4 gap-2">
+                <div>
+                  <p class="text-xs text-muted mb-1">Cost Price (ETB) <span class="text-muted/60">new item</span></p>
+                  <input v-model.number="line.costPrice" type="number" step="0.01" min="0" placeholder="0.00" class="w-full bg-surface border border-border px-2 py-1.5 text-xs font-mono outline-none focus:border-text" />
                 </div>
               </div>
               <div class="text-right text-xs text-muted font-mono">
@@ -544,6 +561,12 @@ async function saveDetail() {
                   <div>
                     <p class="text-xs text-muted mb-1">Unit Price (ETB)</p>
                     <input v-model.number="line.unitPrice" type="number" step="0.01" min="0" placeholder="0.00" class="w-full bg-surface border border-border px-2 py-1.5 text-xs font-mono outline-none focus:border-text" />
+                  </div>
+                </div>
+                <div v-if="!line.itemId && line.itemName.trim()" class="grid grid-cols-4 gap-2">
+                  <div>
+                    <p class="text-xs text-muted mb-1">Cost Price (ETB) <span class="text-muted/60">new item</span></p>
+                    <input v-model.number="line.costPrice" type="number" step="0.01" min="0" placeholder="0.00" class="w-full bg-surface border border-border px-2 py-1.5 text-xs font-mono outline-none focus:border-text" />
                   </div>
                 </div>
                 <div class="text-right text-xs text-muted font-mono">
