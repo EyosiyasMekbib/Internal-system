@@ -2,13 +2,14 @@
 const route = useRoute()
 
 const links = [
-  { href: '/',           label: 'Dashboard',  icon: '▤' },
-  { href: '/items',      label: 'Items',       icon: '◫' },
-  { href: '/customers',  label: 'Customers',   icon: '◎' },
-  { href: '/suppliers',  label: 'Suppliers',   icon: '◈' },
-  { href: '/purchases',  label: 'Purchases',   icon: '↓' },
-  { href: '/sales',      label: 'Sales',       icon: '↑' },
-  { href: '/reports',    label: 'VAT Report',  icon: '≡' },
+  { href: '/',          label: 'Dashboard', icon: '▤' },
+  { href: '/items',     label: 'Items',      icon: '◫' },
+  { href: '/customers', label: 'Customers',  icon: '◎' },
+  { href: '/suppliers', label: 'Suppliers',  icon: '◈' },
+  { href: '/purchases', label: 'Purchases',  icon: '↓' },
+  { href: '/sales',     label: 'Sales',      icon: '↑' },
+  { href: '/reports',   label: 'VAT Report', icon: '≡' },
+  { href: '/settings',  label: 'Settings',   icon: '⚙' },
 ]
 
 function isActive(href: string) {
