@@ -8,7 +8,7 @@ const links = [
   { href: '/suppliers', label: 'Suppliers',  icon: '◈' },
   { href: '/purchases', label: 'Purchases',  icon: '↓' },
   { href: '/sales',     label: 'Sales',      icon: '↑' },
-  { href: '/reports',   label: 'VAT Report', icon: '≡' },
+  { href: '/reports/vat',   label: 'VAT Report', icon: '≡' },
   { href: '/settings',  label: 'Settings',   icon: '⚙' },
 ]
 
@@ -16,13 +16,18 @@ function isActive(href: string) {
   if (href === '/') return route.path === '/'
   return route.path.startsWith(href)
 }
+
+async function handleSignOut() {
+  await $fetch('/api/auth/sign-out', { method: 'POST' })
+  await navigateTo('/login')
+}
 </script>
 
 <template>
   <aside class="print:hidden w-60 flex-shrink-0 flex flex-col border-r border-border bg-surface">
     <!-- Logo -->
     <div class="px-5 py-6 border-b border-border">
-      <img src="~/assets/images/katerina-logo.png" alt="Katerina" class="h-8 w-auto" />
+      <img src="~/assets/images/logo.png" alt="Katerina" class="h-8 w-auto" />
     </div>
 
     <!-- Nav -->
@@ -48,7 +53,7 @@ function isActive(href: string) {
     <div class="px-3 py-4 border-t border-border">
       <button
         class="w-full flex items-center gap-3 px-3 py-2 text-sm text-muted hover:text-red hover:bg-red-light rounded-[2px] transition-colors"
-        @click="$fetch('/api/auth/sign-out', { method: 'POST' }).then(() => navigateTo('/login'))"
+        @click="handleSignOut"
       >
         <span class="text-base leading-none w-4 text-center">⊗</span>
         <span>Sign out</span>
