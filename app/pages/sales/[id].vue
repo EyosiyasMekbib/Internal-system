@@ -29,7 +29,7 @@ function fmt(n: string | number) {
 
     <!-- Screen summary (hidden on print) -->
     <div class="px-8 py-6 print:hidden">
-      <div class="grid grid-cols-4 gap-6 mb-6 text-sm">
+      <div class="grid grid-cols-3 gap-6 mb-6 text-sm">
         <div>
           <p class="text-xs text-muted uppercase tracking-wide mb-1">Customer</p>
           <p class="font-medium">{{ (order as any)?.customer?.name }}</p>
@@ -43,10 +43,6 @@ function fmt(n: string | number) {
         <div>
           <p class="text-xs text-muted uppercase tracking-wide mb-1">FS Number</p>
           <p class="font-mono font-medium">{{ (order as any)?.fsNo }}</p>
-        </div>
-        <div>
-          <p class="text-xs text-muted uppercase tracking-wide mb-1">MRC Code</p>
-          <p class="font-mono">{{ (order as any)?.mrcCode || '—' }}</p>
         </div>
       </div>
 

@@ -4,48 +4,50 @@ definePageMeta({ layout: 'default' })
 const { data: sales, refresh } = await useFetch('/api/sales')
 const { data: customers } = await useFetch('/api/customers')
 const { data: items } = await useFetch('/api/items')
+const { data: appSettings } = await useFetch('/api/settings')
+
+const vatRate = computed(() => Number((appSettings.value as any)?.vat_rate ?? 0.15))
 
 const columns = [
-  { key: 'date',         label: 'Date',     width: '110px' },
+  { key: 'date',         label: 'Date',        width: '110px' },
   { key: 'customerName', label: 'Customer' },
   { key: 'grandTotal',   label: 'Total (ETB)', numeric: true, width: '140px' },
 ]
 
 const showForm = ref(false)
 
-type Line = { itemId: string; countryOfOrigin: string; brandName: string; qty: number; unitPrice: number; vatAmount: number }
+type Line = { itemId: string; countryOfOrigin: string; brandName: string; qty: number; unitPrice: number }
 
 const form = reactive({
   customerId: '',
   date: new Date().toISOString().split('T')[0],
   fsNo: '',
-  mrcCode: '',
   lines: [] as Line[],
 })
 
 function addLine() {
-  form.lines.push({ itemId: '', countryOfOrigin: '', brandName: '', qty: 1, unitPrice: 0, vatAmount: 0 })
+  form.lines.push({ itemId: '', countryOfOrigin: '', brandName: '', qty: 1, unitPrice: 0 })
 }
 
 function removeLine(i: number) {
   form.lines.splice(i, 1)
 }
 
-function updateLineVat(line: Line) {
-  line.vatAmount = Number((line.qty * line.unitPrice * 0.15).toFixed(2))
+function lineVat(line: Line) {
+  return Math.round(line.qty * line.unitPrice * vatRate.value * 100) / 100
 }
 
 function openNew() {
   Object.assign(form, {
     customerId: '', date: new Date().toISOString().split('T')[0],
-    fsNo: '', mrcCode: '', lines: [],
+    fsNo: '', lines: [],
   })
   addLine()
   showForm.value = true
 }
 
 const subtotal = computed(() => form.lines.reduce((s, l) => s + l.qty * l.unitPrice, 0))
-const totalVat = computed(() => form.lines.reduce((s, l) => s + l.vatAmount, 0))
+const totalVat = computed(() => form.lines.reduce((s, l) => s + lineVat(l), 0))
 const grandTotal = computed(() => subtotal.value + totalVat.value)
 
 async function save() {
@@ -93,15 +95,9 @@ async function save() {
                 <input v-model="form.date" type="date" required class="w-full bg-surface border border-border px-3 py-2 text-sm outline-none focus:border-text" />
               </div>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-medium text-muted uppercase tracking-wide mb-1.5">FS No</label>
-                <input v-model="form.fsNo" required class="w-full bg-surface border border-border px-3 py-2 text-sm outline-none focus:border-text" />
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-muted uppercase tracking-wide mb-1.5">MRC Code</label>
-                <input v-model="form.mrcCode" class="w-full bg-surface border border-border px-3 py-2 text-sm outline-none focus:border-text" />
-              </div>
+            <div>
+              <label class="block text-xs font-medium text-muted uppercase tracking-wide mb-1.5">FS No</label>
+              <input v-model="form.fsNo" required class="w-full bg-surface border border-border px-3 py-2 text-sm outline-none focus:border-text" />
             </div>
           </div>
 
@@ -120,15 +116,15 @@ async function save() {
                 </select>
                 <button type="button" class="text-muted hover:text-red px-2" @click="removeLine(i)">✕</button>
               </div>
-              <div class="grid grid-cols-5 gap-2">
+              <div class="grid grid-cols-4 gap-2">
                 <input v-model="line.countryOfOrigin" placeholder="Origin" class="bg-surface border border-border px-2 py-1.5 text-xs outline-none focus:border-text" />
                 <input v-model="line.brandName" placeholder="Brand" class="bg-surface border border-border px-2 py-1.5 text-xs outline-none focus:border-text" />
-                <input v-model.number="line.qty" @input="updateLineVat(line)" type="number" step="0.001" min="0.001" placeholder="Qty" class="bg-surface border border-border px-2 py-1.5 text-xs font-mono outline-none focus:border-text" />
-                <input v-model.number="line.unitPrice" @input="updateLineVat(line)" type="number" step="0.01" min="0" placeholder="Unit Price" class="bg-surface border border-border px-2 py-1.5 text-xs font-mono outline-none focus:border-text" />
-                <input v-model.number="line.vatAmount" type="number" step="0.01" min="0" placeholder="VAT" class="bg-surface border border-border px-2 py-1.5 text-xs font-mono outline-none focus:border-text bg-muted/20" />
+                <input v-model.number="line.qty" type="number" step="0.001" min="0.001" placeholder="Qty" class="bg-surface border border-border px-2 py-1.5 text-xs font-mono outline-none focus:border-text" />
+                <input v-model.number="line.unitPrice" type="number" step="0.01" min="0" placeholder="Unit Price" class="bg-surface border border-border px-2 py-1.5 text-xs font-mono outline-none focus:border-text" />
               </div>
-              <div class="text-right text-xs text-muted font-mono">
-                Line total: {{ (line.qty * line.unitPrice).toLocaleString('en-ET', { minimumFractionDigits: 2 }) }}
+              <div class="flex justify-between text-xs text-muted font-mono mt-1">
+                <span>VAT ({{ (vatRate * 100).toFixed(0) }}%): {{ lineVat(line).toLocaleString('en-ET', { minimumFractionDigits: 2 }) }}</span>
+                <span>Line total: {{ (line.qty * line.unitPrice + lineVat(line)).toLocaleString('en-ET', { minimumFractionDigits: 2 }) }}</span>
               </div>
             </div>
           </div>

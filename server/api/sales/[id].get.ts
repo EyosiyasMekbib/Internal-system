@@ -20,8 +20,10 @@ export default defineEventHandler(async (event) => {
       id: salesOrderLines.id,
       itemId: salesOrderLines.itemId,
       itemName: items.name,
+      itemUnit: items.unit,
       qty: salesOrderLines.qty,
       unitPrice: salesOrderLines.unitPrice,
+      vatAmount: salesOrderLines.vatAmount,
       total: salesOrderLines.total,
     })
     .from(salesOrderLines)
