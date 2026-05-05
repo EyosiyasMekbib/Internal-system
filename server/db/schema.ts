@@ -59,7 +59,6 @@ export const items = pgTable('items', {
   unit: text('unit').notNull(),
   costPrice: numeric('cost_price', { precision: 12, scale: 4 }).notNull().default('0'),
   salePrice: numeric('sale_price', { precision: 12, scale: 4 }).notNull().default('0'),
-  stockQty: numeric('stock_qty', { precision: 12, scale: 4 }).notNull().default('0'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
@@ -112,7 +111,6 @@ export const salesOrders = pgTable('sales_orders', {
   customerId: uuid('customer_id').notNull().references(() => customers.id),
   date: date('date').notNull(),
   fsNo: text('fs_no').notNull(),
-  mrcCode: text('mrc_code'),
   subtotal: numeric('subtotal', { precision: 14, scale: 2 }).notNull().default('0'),
   vatAmount: numeric('vat_amount', { precision: 14, scale: 2 }).notNull().default('0'),
   grandTotal: numeric('grand_total', { precision: 14, scale: 2 }).notNull().default('0'),
@@ -126,8 +124,14 @@ export const salesOrderLines = pgTable('sales_order_lines', {
   itemId: uuid('item_id').notNull().references(() => items.id),
   countryOfOrigin: text('country_of_origin'),
   brandName: text('brand_name'),
+  costPrice: numeric('cost_price', { precision: 12, scale: 4 }).notNull().default('0'),
   qty: numeric('qty', { precision: 12, scale: 4 }).notNull(),
   unitPrice: numeric('unit_price', { precision: 12, scale: 4 }).notNull(),
   vatAmount: numeric('vat_amount', { precision: 12, scale: 4 }).notNull(),
   total: numeric('total', { precision: 14, scale: 2 }).notNull(),
+})
+
+export const settings = pgTable('settings', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
 })
