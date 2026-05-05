@@ -12,9 +12,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 422, message: 'ec_year and ec_month are required' })
   }
 
-  const { start, end } = ecMonthDateRange(ecYear, ecMonth)
-  const startStr = start.toISOString().split('T')[0]
-  const endStr = end.toISOString().split('T')[0]
+  const { startStr, endStr } = ecMonthDateRange(ecYear, ecMonth)
 
   const mrcSetting = await db.query.settings.findFirst({ where: eq(settings.key, 'mrc_code') })
   const mrcCode = mrcSetting?.value ?? ''

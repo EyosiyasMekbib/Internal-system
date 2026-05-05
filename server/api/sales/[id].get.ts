@@ -1,17 +1,16 @@
-import { db } from '../../db'
-import { salesOrders, salesOrderLines, customers, items } from '../../db/schema'
+import { db } from '~~/server/db/index'
+import { salesOrders, salesOrderLines, customers, items } from '~~/server/db/schema'
 import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
   if (!id) throw createError({ statusCode: 400, message: 'Missing id' })
 
-  const order = await db.query.salesOrders.findFirst({
-    where: eq(salesOrders.id, id),
-    with: {
-      customer: true
-    }
-  })
+  const [order] = await db
+    .select()
+    .from(salesOrders)
+    .leftJoin(customers, eq(salesOrders.customerId, customers.id))
+    .where(eq(salesOrders.id, id))
 
   if (!order) throw createError({ statusCode: 404, message: 'Not found' })
 
@@ -21,14 +20,20 @@ export default defineEventHandler(async (event) => {
       itemId: salesOrderLines.itemId,
       itemName: items.name,
       itemUnit: items.unit,
+      countryOfOrigin: salesOrderLines.countryOfOrigin,
+      brandName: salesOrderLines.brandName,
       qty: salesOrderLines.qty,
       unitPrice: salesOrderLines.unitPrice,
       vatAmount: salesOrderLines.vatAmount,
       total: salesOrderLines.total,
     })
     .from(salesOrderLines)
-    .innerJoin(items, eq(salesOrderLines.itemId, items.id))
+    .leftJoin(items, eq(salesOrderLines.itemId, items.id))
     .where(eq(salesOrderLines.salesOrderId, id))
 
-  return { ...order, lines }
+  return {
+    ...order.sales_orders,
+    customer: order.customers,
+    lines,
+  }
 })

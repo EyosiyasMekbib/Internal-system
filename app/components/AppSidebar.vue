@@ -19,7 +19,7 @@ function isActive(href: string) {
 </script>
 
 <template>
-  <aside class="w-60 flex-shrink-0 flex flex-col border-r border-border bg-surface">
+  <aside class="print:hidden w-60 flex-shrink-0 flex flex-col border-r border-border bg-surface">
     <!-- Logo -->
     <div class="px-5 py-6 border-b border-border">
       <img src="~/assets/images/katerina-logo.png" alt="Katerina" class="h-8 w-auto" />
