@@ -51,7 +51,16 @@ async function handleSignOut() {
     </nav>
 
     <!-- User / Logout -->
-    <div class="px-3 py-4 border-t border-border">
+    <div class="px-3 py-4 border-t border-border space-y-0.5">
+      <NuxtLink
+        to="/account"
+        class="flex items-center gap-3 px-3 py-2 text-sm font-ui text-muted rounded-[2px] hover:bg-surface2 hover:text-text transition-colors relative"
+        :class="{ 'bg-surface2 text-text': isActive('/account') }"
+      >
+        <span v-if="isActive('/account')" class="absolute left-0 top-1 bottom-1 w-0.5 bg-red rounded-[1px]" />
+        <span class="text-base leading-none w-4 text-center">◉</span>
+        <span>Account</span>
+      </NuxtLink>
       <button
         class="w-full flex items-center gap-3 px-3 py-2 text-sm text-muted hover:text-red hover:bg-red-light rounded-[2px] transition-colors"
         @click="handleSignOut"
