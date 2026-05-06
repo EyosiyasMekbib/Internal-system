@@ -1,6 +1,6 @@
 {
   "appId": "com.katerina.erp",
-  "productName": "Katerina ERP",
+  "productName": "Katerina",
   "directories": {
     "output": "release",
     "buildResources": "build"

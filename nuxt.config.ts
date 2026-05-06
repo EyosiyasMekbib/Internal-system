@@ -22,4 +22,10 @@ export default defineNuxtConfig({
     betterAuthUrl: process.env.BETTER_AUTH_URL,
   },
   typescript: { strict: true },
+  nitro: {
+    externals: {
+      external: ['better-sqlite3', 'exceljs'],
+      traceExclude: ['better-sqlite3', 'exceljs'],
+    },
+  },
 })

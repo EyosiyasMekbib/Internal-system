@@ -84,7 +84,7 @@ async function createWindow(port: number) {
     height: 900,
     minWidth: 1024,
     minHeight: 700,
-    title: 'Katerina ERP',
+    title: 'Katerina',
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
       contextIsolation: true,
