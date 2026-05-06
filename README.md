@@ -1,75 +1,50 @@
-# Nuxt Minimal Starter
+# Katerina ERP
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Internal ERP system for Ethiopian businesses — inventory management, purchase orders, sales orders, and VAT reporting.
+
+Built with Nuxt 4, PostgreSQL, Drizzle ORM, and better-auth.
+
+## Features
+
+- Inventory management with weighted-average cost tracking
+- Purchase and sales order management
+- VAT reporting with Ethiopian calendar support
+- Payroll tax calculations
+- Session-based authentication
+
+## Requirements
+
+- Node.js 22+
+- PostgreSQL 16+
+- Docker (optional, for local dev)
 
 ## Setup
 
-Make sure to install dependencies:
-
 ```bash
-# npm
+# Install dependencies
 npm install
 
-# pnpm
-pnpm install
+# Copy and fill in environment variables
+cp .env.example .env
 
-# yarn
-yarn install
+# Start PostgreSQL (Docker)
+docker compose up -d
 
-# bun
-bun install
-```
+# Apply migrations
+npx drizzle-kit migrate
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
+# Start dev server
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
+## Environment Variables
 
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+```
+DATABASE_URL=postgresql://katerina:katerina_dev@localhost:5432/katerina
+BETTER_AUTH_SECRET=<random 32-char string>
+BETTER_AUTH_URL=http://localhost:3000
 ```
 
-Locally preview production build:
+## Deployment (Windows)
 
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+See `deploy/` for the Windows installer scripts. Run `deploy/build-package.sh` on macOS/Linux to produce a `KaterinaERP-Setup.zip`, then distribute `deploy/launch.bat` to the client.
