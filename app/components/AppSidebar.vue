@@ -19,7 +19,9 @@ function isActive(href: string) {
 }
 
 async function handleSignOut() {
-  await $fetch('/api/auth/sign-out', { method: 'POST' })
+  try {
+    await $fetch('/api/auth/sign-out', { method: 'POST' })
+  } catch {}
   await navigateTo('/login')
 }
 </script>
