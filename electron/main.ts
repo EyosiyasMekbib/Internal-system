@@ -7,6 +7,7 @@ import { existsSync } from 'fs'
 
 let mainWindow: BrowserWindow | null = null
 let serverProcess: ChildProcess | null = null
+let activePort: number | null = null
 
 // Find a free TCP port
 function getFreePort(): Promise<number> {
@@ -101,8 +102,8 @@ async function createWindow(port: number) {
 
 app.whenReady().then(async () => {
   try {
-    const port = await startServer()
-    await createWindow(port)
+    activePort = await startServer()
+    await createWindow(activePort)
   } catch (err: any) {
     dialog.showErrorBox('Startup Error', err.message)
     app.quit()
@@ -116,7 +117,8 @@ app.on('window-all-closed', () => {
 app.on('activate', async () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     try {
-      const port = serverProcess ? Number(process.env._KATERINA_PORT) : await startServer()
+      const port = (serverProcess && activePort) ? activePort : await startServer()
+      if (!serverProcess || !activePort) activePort = port
       await createWindow(port)
     } catch (err: any) {
       dialog.showErrorBox('Startup Error', err.message)
