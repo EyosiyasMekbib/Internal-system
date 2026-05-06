@@ -14,14 +14,18 @@ function getFreePort() {
     return new Promise((resolve, reject) => {
         const srv = (0, net_1.createServer)();
         srv.listen(0, '127.0.0.1', () => {
-            const port = srv.address().port;
-            srv.close(() => resolve(port));
+            const addr = srv.address();
+            if (!addr || typeof addr === 'string') {
+                srv.close(() => reject(new Error('Failed to get free port')));
+                return;
+            }
+            srv.close(() => resolve(addr.port));
         });
         srv.on('error', reject);
     });
 }
 // Poll until the server responds on root
-function waitForServer(port, attempts = 30) {
+function waitForServer(port, attempts = 40) {
     return new Promise((resolve, reject) => {
         let tries = 0;
         const check = () => {
@@ -32,7 +36,7 @@ function waitForServer(port, attempts = 30) {
             req.on('error', () => {
                 tries++;
                 if (tries >= attempts)
-                    return reject(new Error('Server did not start'));
+                    return reject(new Error('Server did not start in time'));
                 setTimeout(check, 500);
             });
             req.end();
@@ -41,11 +45,11 @@ function waitForServer(port, attempts = 30) {
     });
 }
 async function startServer() {
-    const port = await getFreePort();
     // In development, use the running nuxt dev server
     if (!electron_1.app.isPackaged) {
-        return 3000; // assume `npm run dev` is running
+        return 3000;
     }
+    const port = await getFreePort();
     const serverPath = (0, path_1.join)(process.resourcesPath, 'app', '.output', 'server', 'index.mjs');
     if (!(0, fs_1.existsSync)(serverPath)) {
         throw new Error(`Nitro server not found at: ${serverPath}`);
@@ -72,6 +76,9 @@ async function startServer() {
     return port;
 }
 async function createWindow(port) {
+    if (!Number.isInteger(port) || port < 1 || port > 65535) {
+        throw new Error(`Cannot open window: invalid port ${port}`);
+    }
     mainWindow = new electron_1.BrowserWindow({
         width: 1400,
         height: 900,
@@ -106,9 +113,10 @@ electron_1.app.on('window-all-closed', () => {
 electron_1.app.on('activate', async () => {
     if (electron_1.BrowserWindow.getAllWindows().length === 0) {
         try {
-            const port = (serverProcess && activePort) ? activePort : await startServer();
-        if (!serverProcess || !activePort) activePort = port;
-            await createWindow(port);
+            if (activePort === null) {
+                activePort = await startServer();
+            }
+            await createWindow(activePort);
         }
         catch (err) {
             electron_1.dialog.showErrorBox('Startup Error', err.message);

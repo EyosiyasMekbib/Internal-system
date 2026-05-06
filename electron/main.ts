@@ -14,15 +14,19 @@ function getFreePort(): Promise<number> {
   return new Promise((resolve, reject) => {
     const srv = createServer()
     srv.listen(0, '127.0.0.1', () => {
-      const port = (srv.address() as { port: number }).port
-      srv.close(() => resolve(port))
+      const addr = srv.address()
+      if (!addr || typeof addr === 'string') {
+        srv.close(() => reject(new Error('Failed to get free port')))
+        return
+      }
+      srv.close(() => resolve(addr.port))
     })
     srv.on('error', reject)
   })
 }
 
 // Poll until the server responds on root
-function waitForServer(port: number, attempts = 30): Promise<void> {
+function waitForServer(port: number, attempts = 40): Promise<void> {
   return new Promise((resolve, reject) => {
     let tries = 0
     const check = () => {
@@ -32,7 +36,7 @@ function waitForServer(port: number, attempts = 30): Promise<void> {
       })
       req.on('error', () => {
         tries++
-        if (tries >= attempts) return reject(new Error('Server did not start'))
+        if (tries >= attempts) return reject(new Error('Server did not start in time'))
         setTimeout(check, 500)
       })
       req.end()
@@ -42,12 +46,12 @@ function waitForServer(port: number, attempts = 30): Promise<void> {
 }
 
 async function startServer(): Promise<number> {
-  const port = await getFreePort()
-
   // In development, use the running nuxt dev server
   if (!app.isPackaged) {
-    return 3000 // assume `npm run dev` is running
+    return 3000
   }
+
+  const port = await getFreePort()
 
   const serverPath = join(process.resourcesPath, 'app', '.output', 'server', 'index.mjs')
   if (!existsSync(serverPath)) {
@@ -80,6 +84,10 @@ async function startServer(): Promise<number> {
 }
 
 async function createWindow(port: number) {
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error(`Cannot open window: invalid port ${port}`)
+  }
+
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
@@ -117,9 +125,10 @@ app.on('window-all-closed', () => {
 app.on('activate', async () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     try {
-      const port = (serverProcess && activePort) ? activePort : await startServer()
-      if (!serverProcess || !activePort) activePort = port
-      await createWindow(port)
+      if (activePort === null) {
+        activePort = await startServer()
+      }
+      await createWindow(activePort)
     } catch (err: any) {
       dialog.showErrorBox('Startup Error', err.message)
     }
